@@ -3,6 +3,7 @@ using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -30,9 +31,24 @@ namespace Business.Concrete
         public IResult Add(Product product)
         {
             //business codes
+            //Aynı isimde ürün eklenemez.
+            //Eğer mevcut kategori sayısı 15'i geçtiyse sisteme yeni ürün eklenemez.
+
+            
+            IResult result= BusinessRules.Run(CheckIfProductNameExists(product.ProductName), 
+                CheckIfProductCountOfCategoryCorrect(product.CategoryId));
+
+            if (result != null)  //Kurala uymayan bir durum oluşmuşsa
+            {
+                return result;
+            }
+
             _productDal.Add(product);
 
             return new SuccessResult(Messages.ProductAdded);
+
+
+                                    
         }
 
         public IDataResult<List<Product>> GetAll()
@@ -72,7 +88,7 @@ namespace Business.Concrete
 
             if (result >= 10)
             {
-                return new ErrorResult(Messages.ProductCountOfCategoryError);
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
             }
             throw new NotImplementedException();
         }
@@ -84,9 +100,25 @@ namespace Business.Concrete
 
             if (result >= 15)
             {
-                return new ErrorResult(Messages.ProductCountOfCategoryError);
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
             }
             return new SuccessResult();
         }
+
+        private IResult CheckIfProductNameExists (string productName)
+        {
+
+            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+
+            if (result)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
+            }
+            return new SuccessResult();
+        }
+
     }
+
+          
+     
 }
