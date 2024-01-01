@@ -29,15 +29,6 @@ namespace Business.Concrete
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            //Bir kategoride en fazla 15 ürün olabilir
-
-            var result = _productDal.GetAll(p => p.CategoryId == product.CategoryId).Count;
-
-             if (result >= 15)
-            {
-                return new ErrorResult(Messages.ProductCountOfCategoryError);
-            }
-
             //business codes
             _productDal.Add(product);
 
@@ -84,6 +75,18 @@ namespace Business.Concrete
                 return new ErrorResult(Messages.ProductCountOfCategoryError);
             }
             throw new NotImplementedException();
+        }
+
+        private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
+        {
+
+            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
+
+            if (result >= 15)
+            {
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
         }
     }
 }
