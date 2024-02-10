@@ -38,7 +38,7 @@ namespace Business.Concrete
             IResult result= BusinessRules.Run(CheckIfProductNameExists(product.ProductName), 
                 CheckIfProductCountOfCategoryCorrect(product.CategoryId));
 
-            if (result != null)  //Kurala uymayan bir durum oluşmuşsa
+            if (result != null)  //Kurala uymayan bir durum oluşmuşsa 
             {
                 return result;
             }
